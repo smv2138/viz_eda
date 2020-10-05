@@ -93,3 +93,37 @@ weather_df %>%
             n_days = n_distinct(date))
 ```
 
+## A digression on 2X2 tables 
+case_when is kind of like if/then
+TRUE ~ "" is just in case some observations don't fit into the categories defined
+
+Data that goes into a 2X2 table
+```{r}
+weather_df %>% 
+  filter(name != "Waikiki_HA") %>% 
+  mutate(
+    cold = case_when(
+      tmax < 5 ~ "cold",
+      tmax >= 5 ~ "not_cold",
+      TRUE      ~ ""
+    )
+  ) %>% 
+  group_by(name, cold) %>% 
+  summarize(count = n())
+```
+
+To actually make it look like a 2X2 table
+```{r}
+
+weather_df %>% 
+  filter(name != "Waikiki_HA") %>% 
+  mutate(
+    cold = case_when(
+      tmax < 5 ~ "cold",
+      tmax >= 5 ~ "not_cold",
+      TRUE      ~ ""
+    )
+  ) %>% 
+  janitor::tabyl(name, cold)
+```
+
