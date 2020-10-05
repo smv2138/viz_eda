@@ -1,99 +1,191 @@
 ---
-title: "Data Import"
+title: "Visualization Part 1"
 output: github_document
 ---
 ```{r setup}
 library(tidyverse)
-library(readxl)
-library(haven)
+library(ggridges)
 ```
 
-## Read in some data
+## Load the weather data
+rnoaa package allows you to access data from online
+```{r}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728", "USC00519397", "USS0023B17S"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2017-01-01",
+    date_max = "2017-12-31") %>%
+  mutate(
+    name = recode(
+      id, 
+      USW00094728 = "CentralPark_NY", 
+      USC00519397 = "Waikiki_HA",
+      USS0023B17S = "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) %>%
+  select(name, id, everything())
+```
 
-Read in the litters dataset. 
-"read_csv" exisits in the readr package in tidyverse
-Since we're working within the "data_wrangling_i" project, we can create a relative path starting with that folder
-  "./" means start with the project folder
-  
-Also will update names in df because they aren't in good form (clean_names)
-  Doing "janitor::" means clean_names is in that package. But since    it's the only function in that package we need, we don't need to     load the entire package
+## Scatter plots!!!
+
+Create first scatter plot
+Have to add "geom_point" to add points into the plot
 
 ```{r}
-litters_df = read_csv("./data/FAS_litters.csv")
-litters_df = janitor::clean_names(litters_df)
+ggplot(weather_df, aes(x = tmin, y = tmax)) +
+  geom_point()
 ```
 
-## Take a look at the data
-
-Printing in the console
-```{r}
-litters_df
-```
-
-Prints first 6 observations
-```{r}
-head(litters_df)
-```
-
-Print last 6 observations 
-```{r}
-tail(litters_df)
-```
-
-Some descriptive info
-```{r}
-skimr::skim(litters_df)
-```
-
-Use view(litter_df) in console to open up a new tab of the data set. Run this in the console because it makes knitting easier
-
-## Options to read_csv
-Check out "?read_csv" in console for more info
-If there are blank rows at the beginning of the file, can skip them
-Can also make R import values and desginate them as NA 
-```{r}
-litters_df = read_csv("./data/FAS_litters.csv", skip = 10, col_names = FALSE)
-litters_df = read_csv("./data/FAS_litters.csv", na = c("", "NA", ".", 999))
-```
-
-
-## Other file formats
-
-Read in an EXCEL file
-Look at "?read_excel" in console for more info
-```{r}
-mlb_df = read_excel("./data/mlb11.xlsx")
-mlb_df = read_excel("./data/mlb11.xlsx", range = "A1:F7")
-```
-
-
-Read in a SAS file 
+New approach, same plot
 
 ```{r}
-pulse_df = read_sas("./data/public_pulse_data.sas7bdat")
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point()
 ```
 
-## Comparison with Base R
+Save and edit an object
+Work flow that is least used. 
+```{r}
+weather_plot = 
+  weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax))
 
-What about "read.csv" --> This is built into R but Jeff would recomment we use "read_csv"
+weather_plot + geom_point()
+
+```
+
+## Advanced scatter plot
+
+Start with the same one and make it fancy
 
 ```{r}
-litters_base = read.csv("./data/FAS_litters.csv")
-litters_readr = read_csv("./data/FAS_litters.csv")
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point() +
+  geom_smooth( se = FALSE)
 ```
-Printed differences!
-USE "read_csv"!!!
 
-## Exporting data
+What about the aes placement?
+Move color down the geom point --> plot looks the without geom smoot
+with geom smooth, there is one solid line (color only applies to the scatter plot)
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point(aes(color = name)) +
+  geom_smooth()
+```
 
-Export the mlb sub-table. 
+Lets facet things!!
+Facet grid lets you define number of rows and columns 
+  . means nothing defines rows
+  ~ name means name variable defines columns
+alpha = reduces the transparency of the points
+  can map alpha to a variable to create a gradient
+size = size of the line
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, alpha = tmin, color = name)) +
+  geom_point() +
+  geom_smooth( se = FALSE, size = 1) +
+  facet_grid(. ~name)
+```
+
+Lets combine some elements and try a new plot
 
 ```{r}
-write_csv(mlb_df, "./data/mlb_subtable.csv")
+weather_df %>% 
+  ggplot(aes(x = date, y = tmax, color = name)) +
+  geom_point(aes(size = prcp), alpha = 0.1) +
+  geom_smooth(se = FALSE) +
+  facet_grid(. ~name)
 ```
 
+## small notes
 
+How many geoms have to exist?
+  You can have as many as you want 
 
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_smooth(se = FALSE)
+```
 
+You can use a neat geom!
+  hex - hexagons
+  geom_density2d( -> density plot)
+  For large datasets!!
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_density2d() +
+  geom_point(alpha = 0.03)
+```
+
+## Univariate plots
+
+One variable at a time
+
+Histograms are really great
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin)) +
+  geom_histogram()
+```
+
+Color and histograms
+
+color = name works but it outlines the bars, doesn't change the color of the bar. Also the bars overlap each other
+
+geom_histogram(position = "dodge") moves bars to the left and the right and doesn't stack them
+
+fill = name fills the bar instead of outlining them
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, fill = name)) +
+  geom_histogram() +
+  facet_grid(. ~name)
+```
+
+Let's try a new geometry
+  geom_density is a histogram that has been smoothed out around the edges
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, fill = name)) +
+  geom_density(alpha = 0.4) 
+```
+
+Boxplots!!
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = name, y = tmin)) +
+  geom_boxplot()
+```
+
+Trendy plots :-)
+
+Violin plot - looks like a violin
+  cross between a boxpot and and a density plot
+  can add stat_summary to get different stats
+```{r}
+weather_df %>% 
+  ggplot(aes(x = name, y = tmax, fill = name)) + 
+  geom_violin(alpha = 0.5) +
+  stat_summary(fun = "median")
+```
+
+Ridge plot - most popular of 2017
+  density curves are stacked instead of on top of each other
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = name)) +
+  geom_density_ridges()
+```
 
 
