@@ -1,14 +1,34 @@
 ---
-title: "Visualization Part 1"
+title: "Exploratory Numeric Analysis"
 output: github_document
 ---
-```{r setup}
+```{r}
 library(tidyverse)
-library(ggridges)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = 0.6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+## all plots i make will have the viridis color palette
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
 ```
 
+
 ## Load the weather data
+
 rnoaa package allows you to access data from online
+floor_date -> round down
 ```{r}
 weather_df = 
   rnoaa::meteo_pull_monitors(
@@ -23,191 +43,16 @@ weather_df =
       USC00519397 = "Waikiki_HA",
       USS0023B17S = "Waterhole_WA"),
     tmin = tmin / 10,
-    tmax = tmax / 10) %>%
+    tmax = tmax / 10,
+    month = lubridate::floor_date(date, unit = "month")) %>%
   select(name, id, everything())
 ```
 
-## Scatter plots!!!
-
-Create first scatter plot
-Have to add "geom_point" to add points into the plot
-
-```{r}
-ggplot(weather_df, aes(x = tmin, y = tmax)) +
-  geom_point()
-```
-
-New approach, same plot
+## `group_by`
 
 ```{r}
 weather_df %>% 
-  ggplot(aes(x = tmin, y = tmax)) +
-  geom_point()
+  group_by(name, month) %>% 
+  ungroup()
 ```
 
-Save and edit an object
-Work flow that is least used. 
-```{r}
-weather_plot = 
-  weather_df %>% 
-  ggplot(aes(x = tmin, y = tmax))
-
-weather_plot + geom_point()
-
-```
-
-## Advanced scatter plot
-
-Start with the same one and make it fancy
-
-```{r}
-weather_df %>% 
-  ggplot(aes(x = tmin, y = tmax, color = name)) +
-  geom_point() +
-  geom_smooth( se = FALSE)
-```
-
-What about the aes placement?
-Move color down the geom point --> plot looks the without geom smoot
-with geom smooth, there is one solid line (color only applies to the scatter plot)
-```{r}
-weather_df %>% 
-  ggplot(aes(x = tmin, y = tmax)) +
-  geom_point(aes(color = name)) +
-  geom_smooth()
-```
-
-Lets facet things!!
-Facet grid lets you define number of rows and columns 
-  . means nothing defines rows
-  ~ name means name variable defines columns
-alpha = reduces the transparency of the points
-  can map alpha to a variable to create a gradient
-size = size of the line
-```{r}
-weather_df %>% 
-  ggplot(aes(x = tmin, y = tmax, alpha = tmin, color = name)) +
-  geom_point() +
-  geom_smooth( se = FALSE, size = 1) +
-  facet_grid(. ~name)
-```
-
-Lets combine some elements and try a new plot
-
-```{r}
-weather_df %>% 
-  ggplot(aes(x = date, y = tmax, color = name)) +
-  geom_point(aes(size = prcp), alpha = 0.1) +
-  geom_smooth(se = FALSE) +
-  facet_grid(. ~name)
-```
-
-## small notes
-
-How many geoms have to exist?
-  You can have as many as you want 
-
-```{r}
-weather_df %>% 
-  ggplot(aes(x = tmin, y = tmax, color = name)) +
-  geom_smooth(se = FALSE)
-```
-
-You can use a neat geom!
-  hex - hexagons
-  geom_density2d( -> density plot)
-  For large datasets!!
-```{r}
-weather_df %>% 
-  ggplot(aes(x = tmin, y = tmax)) +
-  geom_density2d() +
-  geom_point(alpha = 0.03)
-```
-
-## Univariate plots
-
-One variable at a time
-
-Histograms are really great
-
-```{r}
-weather_df %>% 
-  ggplot(aes(x = tmin)) +
-  geom_histogram()
-```
-
-Color and histograms
-
-color = name works but it outlines the bars, doesn't change the color of the bar. Also the bars overlap each other
-
-geom_histogram(position = "dodge") moves bars to the left and the right and doesn't stack them
-
-fill = name fills the bar instead of outlining them
-
-```{r}
-weather_df %>% 
-  ggplot(aes(x = tmin, fill = name)) +
-  geom_histogram() +
-  facet_grid(. ~name)
-```
-
-Let's try a new geometry
-  geom_density is a histogram that has been smoothed out around the edges
-
-```{r}
-weather_df %>% 
-  ggplot(aes(x = tmin, fill = name)) +
-  geom_density(alpha = 0.4) 
-```
-
-Boxplots!!
-
-```{r}
-weather_df %>% 
-  ggplot(aes(x = name, y = tmin)) +
-  geom_boxplot()
-```
-
-Trendy plots :-)
-
-Violin plot - looks like a violin
-  cross between a boxpot and and a density plot
-  can add stat_summary to get different stats
-```{r}
-weather_df %>% 
-  ggplot(aes(x = name, y = tmax, fill = name)) + 
-  geom_violin(alpha = 0.5) +
-  stat_summary(fun = "median")
-```
-
-Ridge plot - most popular of 2017
-  density curves are stacked instead of on top of each other
-```{r}
-weather_df %>% 
-  ggplot(aes(x = tmin, y = name)) +
-  geom_density_ridges()
-```
-
-## How to save and embed plots into a visualization
-
-Save a scatter plot
-  ggsave!!!
-```{r}
-weather_plot = 
-weather_df %>% 
-  ggplot(aes(x = tmin, y = tmax, color = name)) +
-  geom_point(alpha = .5)
-
-ggsave("./results/weather_plot.pdf", weather_plot, width = 8, height = 5)
-```
-
-What about embeding??
-
-```{r, fig.width=6, fig.height=3}
-weather_plot
-```
-
-Embed at different size of figure
-```{r, fig.width=12, fig.height=6}
-weather_plot
-```
