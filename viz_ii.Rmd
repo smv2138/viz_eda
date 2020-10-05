@@ -201,3 +201,41 @@ ggplot(data = waikiki, aes(x = date, y = tmax, color = name)) +
   geom_line(data = central_park)
 ```
 
+## `patchwork`
+
+remember faceting??
+cannot plot two different types of graphs side by side
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, fill = name)) +
+  geom_density(alpha = 0.5) +
+  facet_grid(. ~name)
+```
+
+What happens when you want multipanel plots but cannot facet??
+Organize the following plots into 1 figure
+
+```{r}
+tmax_tmin_plot = 
+  weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = 0.5) +
+  theme(legend.position = "none")
+
+prcp_density_plot = 
+  weather_df %>%
+  filter(prcp > 0) %>% 
+  ggplot(aes(x = prcp, fill = name)) +
+  geom_density(alpha = 0.5) +
+  theme(legend.position = "none")
+
+tmax_dates_plots = 
+  weather_df %>% 
+  ggplot(aes(x = date, y = tmax, color = name)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  theme(legend.position = "none")
+
+tmax_tmin_plot + prcp_density_plot + tmax_dates_plots
+```
+
