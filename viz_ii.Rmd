@@ -50,3 +50,67 @@ weather_df %>%
   )
 ```
 
+## Scales
+
+Start with the same plot
+"trans = sqrt/log" changes the type of plot
+"position = " can move the axis around the graph
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = 0.5) +
+  labs(
+    title = "Temperature plot",
+    x = "Minimum daily temperature (C)",
+    y = "Maximum daily temperature (C)",
+    caption = "Data from the rnoaa package; temperatures in 2017"
+  ) +
+  scale_x_continuous(
+    breaks = c(-15, 0 ,15),
+    labels = c("-15 C", "0 C", "15 C")
+  ) +
+  scale_y_continuous(
+    position = "right"
+  )
+```
+
+Look at color scales 
+"scale_color_hue(h = c(100,300))"
+  hues go from 0 to 360 
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = 0.5) +
+  labs(
+    title = "Temperature plot",
+    x = "Minimum daily temperature (C)",
+    y = "Maximum daily temperature (C)",
+    caption = "Data from the rnoaa package; temperatures in 2017"
+  ) +
+ scale_color_hue(
+   name = "Location",
+   h = c(100,300))
+```
+
+Other color option (virdis package)
+This package assumes that the value you're putting in is on a continuous scale --> we need to tell it that the variable is discrete
+
+This is a good color palette to use
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = 0.5) +
+  labs(
+    title = "Temperature plot",
+    x = "Minimum daily temperature (C)",
+    y = "Maximum daily temperature (C)",
+    caption = "Data from the rnoaa package; temperatures in 2017"
+  ) +
+ viridis::scale_color_viridis(
+   name = "Location",
+   discrete = TRUE)
+
+```
+
