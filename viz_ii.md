@@ -306,6 +306,7 @@ tmax_dates_plots =
   geom_smooth(se = FALSE) +
   theme(legend.position = "none")
 
+## 3 panels side by side
 tmax_tmin_plot + prcp_density_plot + tmax_dates_plots
 ```
 
@@ -318,3 +319,48 @@ tmax_tmin_plot + prcp_density_plot + tmax_dates_plots
     ## Warning: Removed 3 rows containing missing values (geom_point).
 
 ![](viz_ii_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+## last 2 panels get same space as first one
+tmax_tmin_plot + (prcp_density_plot + tmax_dates_plots)
+```
+
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+
+    ## Warning: Removed 3 rows containing non-finite values (stat_smooth).
+    
+    ## Warning: Removed 3 rows containing missing values (geom_point).
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+
+``` r
+## last two panels get placed below the first one
+tmax_tmin_plot / (prcp_density_plot + tmax_dates_plots)
+```
+
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+
+    ## Warning: Removed 3 rows containing non-finite values (stat_smooth).
+    
+    ## Warning: Removed 3 rows containing missing values (geom_point).
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-12-3.png)<!-- -->
+
+``` r
+## one we're going to go with
+(tmax_tmin_plot + prcp_density_plot) / tmax_dates_plots
+```
+
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+
+    ## Warning: Removed 3 rows containing non-finite values (stat_smooth).
+    
+    ## Warning: Removed 3 rows containing missing values (geom_point).
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-12-4.png)<!-- -->

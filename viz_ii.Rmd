@@ -236,6 +236,17 @@ tmax_dates_plots =
   geom_smooth(se = FALSE) +
   theme(legend.position = "none")
 
+## 3 panels side by side
 tmax_tmin_plot + prcp_density_plot + tmax_dates_plots
+
+## last 2 panels get same space as first one
+tmax_tmin_plot + (prcp_density_plot + tmax_dates_plots)
+
+## last two panels get placed below the first one
+tmax_tmin_plot / (prcp_density_plot + tmax_dates_plots)
+
+## one we're going to go with
+(tmax_tmin_plot + prcp_density_plot) / tmax_dates_plots
+
 ```
 
