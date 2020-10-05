@@ -250,3 +250,49 @@ tmax_tmin_plot / (prcp_density_plot + tmax_dates_plots)
 
 ```
 
+## Data manipulations
+
+Issue is that name argument doesn't make sense (ggplot puts them in alphabetical order)
+  ggplot converts all characters to factors (1, 2, 3)
+  to put them in a different order, need to use some sort of data 
+  manipulation (mutate!!!)
+    need to update the factor variable (don't need to do anything      in ggplot)
+    
+Using "fct::relevel" you can assign which order you want the variables to appear 
+```{r}
+weather_df %>% 
+  mutate(
+    name = factor(name),
+    name = forcats::fct_relevel(name, c("Waikiki_HA"))
+  ) %>% 
+  ggplot(aes(x = name, y = tmax, fill = name)) +
+  geom_violin(alpha = 0.5)
+```
+
+What if I wanted densities for tmin and tmax simultaneously? (overlay them)
+
+```{r}
+weather_df %>%
+  filter(name == "CentralPark_NY") %>% 
+  pivot_longer(
+    tmax:tmin,
+    names_to = "observation",
+    values_to = "temperatures"
+  ) %>% 
+  ggplot(aes(x = temperatures, fill = observation))+
+  geom_density(alpha=0.5)
+
+
+weather_df %>%
+  pivot_longer(
+    tmax:tmin,
+    names_to = "observation",
+    values_to = "temperatures"
+  ) %>% 
+  ggplot(aes(x = temperatures, fill = observation)) +
+  geom_density(alpha = 0.5) +
+  facet_grid((. ~name))
+
+```
+
+

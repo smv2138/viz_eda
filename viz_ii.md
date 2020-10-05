@@ -5,14 +5,14 @@ Visualization Part 2
 library(tidyverse)
 ```
 
-    ## -- Attaching packages --------------------------------- tidyverse 1.3.0 --
+    ## -- Attaching packages ------------------------------- tidyverse 1.3.0 --
 
     ## v ggplot2 3.3.2     v purrr   0.3.4
     ## v tibble  3.0.3     v dplyr   1.0.2
     ## v tidyr   1.1.2     v stringr 1.4.0
     ## v readr   1.3.1     v forcats 0.5.0
 
-    ## -- Conflicts ------------------------------------ tidyverse_conflicts() --
+    ## -- Conflicts ---------------------------------- tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -364,3 +364,61 @@ tmax_tmin_plot / (prcp_density_plot + tmax_dates_plots)
     ## Warning: Removed 3 rows containing missing values (geom_point).
 
 ![](viz_ii_files/figure-gfm/unnamed-chunk-12-4.png)<!-- -->
+
+## Data manipulations
+
+Issue is that name argument doesn’t make sense (ggplot puts them in
+alphabetical order) ggplot converts all characters to factors (1, 2, 3)
+to put them in a different order, need to use some sort of data
+manipulation (mutate\!\!\!) need to update the factor variable (don’t
+need to do anything in ggplot)
+
+Using “fct::relevel” you can assign which order you want the variables
+to appear
+
+``` r
+weather_df %>% 
+  mutate(
+    name = factor(name),
+    name = forcats::fct_relevel(name, c("Waikiki_HA"))
+  ) %>% 
+  ggplot(aes(x = name, y = tmax, fill = name)) +
+  geom_violin(alpha = 0.5)
+```
+
+    ## Warning: Removed 3 rows containing non-finite values (stat_ydensity).
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+What if I wanted densities for tmin and tmax simultaneously? (overlay
+them)
+
+``` r
+weather_df %>%
+  filter(name == "CentralPark_NY") %>% 
+  pivot_longer(
+    tmax:tmin,
+    names_to = "observation",
+    values_to = "temperatures"
+  ) %>% 
+  ggplot(aes(x = temperatures, fill = observation))+
+  geom_density(alpha=0.5)
+```
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+weather_df %>%
+  pivot_longer(
+    tmax:tmin,
+    names_to = "observation",
+    values_to = "temperatures"
+  ) %>% 
+  ggplot(aes(x = temperatures, fill = observation)) +
+  geom_density(alpha = 0.5) +
+  facet_grid((. ~name))
+```
+
+    ## Warning: Removed 18 rows containing non-finite values (stat_density).
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
