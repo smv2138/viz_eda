@@ -218,3 +218,29 @@ weather_df %>%
     ## Warning: Removed 15 rows containing missing values (geom_point).
 
 ![](viz_ii_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+## Setting options
+
+Generally this is code that we run at the very beginning of the rmd file
+fig.asp is aspect ratio of width to height
+
+``` r
+library(tidyverse)
+
+knitr::opts_chuck$set(
+  fig.width = 6,
+  fig.asp = 0.6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+## all plots i make will have the viridis color palette
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
