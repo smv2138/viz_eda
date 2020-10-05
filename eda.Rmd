@@ -56,3 +56,40 @@ weather_df %>%
   ungroup()
 ```
 
+## counting things
+How many _________ exist?
+
+Count month / name observations
+n_obs is the variable created to define the function n()
+```{r}
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarize(n_obs = n())
+```
+
+We can use `count()`
+Does the same thing as above
+```{r}
+weather_df %>% 
+  count(month, name = "n_obs")
+```
+
+ **NEVER** USE BASE R'S `TABLE` function
+The result of this is not a dataframe
+YOu have to pull a variable out of a datafram to use the table function
+```{r}
+weather_df %>% 
+  pull(month) %>% 
+  table()
+```
+ 
+Other helpful counters
+n_obs - number of observations in that month
+n_days - number of unique days in that month (how many dates in that month are distinct)
+```{r}
+weather_df %>% 
+  group_by(month) %>% 
+  summarize(n_obs = n(),
+            n_days = n_distinct(date))
+```
+
