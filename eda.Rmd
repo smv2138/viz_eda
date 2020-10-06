@@ -156,3 +156,27 @@ weather_df %>%
   geom_line()
 ```
 
+Suppose you want to summarize many columns in the same way
+
+```{r}
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarize(across(prcp:tmin, mean))
+
+```
+
+Reminder: sometimes your results are easier to read in another format
+We can use "pivot wider" because we are doing these calculations in a dataframe
+pivot wider is easier to read
+"knitr::kable()" helps format info so it is easier to read (creates a table)
+```{r}
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarize(mean_tmax = mean(tmax)) %>% 
+  pivot_wider(
+    names_from = name,
+    values_from = mean_tmax
+  ) %>% 
+knitr::kable(digits = 1)
+```
+
