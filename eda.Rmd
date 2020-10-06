@@ -180,3 +180,30 @@ weather_df %>%
 knitr::kable(digits = 1)
 ```
 
+## `group_by` and `mutate`
+
+mutate added a column to the existing dataframe
+
+```{r}
+weather_df %>% 
+  group_by(name) %>% 
+  mutate(
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    center_tmax = tmax - mean_tmax
+  ) %>% 
+  ggplot(aes(x = date, y = center_tmax, color = name)) +
+  geom_point()
+```
+
+
+What about window functions?
+
+Rank function - ranks the values
+Min_rank ranks coldest as 1 and increases
+if you add descending 
+```{r}
+weather_df %>% 
+  group_by(name, month) %>% 
+  mutate(temp_rank = min_rank(tmax))
+```
+
