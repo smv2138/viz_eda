@@ -5,14 +5,14 @@ Exploratory Numeric Analysis
 library(tidyverse)
 ```
 
-    ## -- Attaching packages ------------------------------------------------ tidyverse 1.3.0 --
+    ## -- Attaching packages ----------------------- tidyverse 1.3.0 --
 
     ## v ggplot2 3.3.2     v purrr   0.3.4
     ## v tibble  3.0.3     v dplyr   1.0.2
     ## v tidyr   1.1.2     v stringr 1.4.0
     ## v readr   1.3.1     v forcats 0.5.0
 
-    ## -- Conflicts --------------------------------------------------- tidyverse_conflicts() --
+    ## -- Conflicts -------------------------- tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -409,3 +409,24 @@ weather_df %>%
     ##  9 CentralPark_NY USW00094728 2017-01-09     0  -4.9  -9.9 2017-01-01         1
     ## 10 CentralPark_NY USW00094728 2017-01-10     0   7.8  -6   2017-01-01        21
     ## # ... with 1,085 more rows
+
+lag - shift variables by 1 good for calculating change
+
+``` r
+weather_df %>% 
+  group_by(name) %>% 
+  mutate(temp_change = tmax - lag(tmax)) %>% 
+  summarize(
+    temp_change_max = max(temp_change, na.rm = TRUE),
+    temp_change_sd = sd(temp_change, na.rm = TRUE)
+  )
+```
+
+    ## `summarise()` ungrouping output (override with `.groups` argument)
+
+    ## # A tibble: 3 x 3
+    ##   name           temp_change_max temp_change_sd
+    ##   <chr>                    <dbl>          <dbl>
+    ## 1 CentralPark_NY            12.7           4.45
+    ## 2 Waikiki_HA                 6.7           1.23
+    ## 3 Waterhole_WA               8             3.13

@@ -207,3 +207,16 @@ weather_df %>%
   mutate(temp_rank = min_rank(tmax))
 ```
 
+lag - shift variables by 1
+good for calculating change
+
+```{r}
+weather_df %>% 
+  group_by(name) %>% 
+  mutate(temp_change = tmax - lag(tmax)) %>% 
+  summarize(
+    temp_change_max = max(temp_change, na.rm = TRUE),
+    temp_change_sd = sd(temp_change, na.rm = TRUE)
+  )
+```
+
